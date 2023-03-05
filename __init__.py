@@ -15,7 +15,7 @@ bl_info = {
     "name": "DynamicSolidify",
     "description": "",
     "author": "Yuuzen401",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "blender": (2, 80, 0),
     "location":  "View3D > Sidebar > DynamicSolidify",
     "warning": "",
@@ -25,20 +25,11 @@ bl_info = {
 }
 
 import bpy
-import gpu
-import bgl
-import bmesh
-import math
-import collections
-import json
-import codecs
 
 from bpy.types import Operator, Panel, UIList, PropertyGroup
 from bpy.props import IntProperty, FloatProperty, FloatVectorProperty, BoolProperty, PointerProperty, CollectionProperty, StringProperty, EnumProperty
-from gpu_extras.batch import batch_for_shader
 from .preferences import *
 from .helper import *
-from .mesh_helpers import *
 from .my_dynamic_solidify import DynamicSolidifyConst, DynamicSolidifyList
 
 # Updater ops import, all setup in this file.
