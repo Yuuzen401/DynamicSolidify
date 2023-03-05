@@ -13,7 +13,7 @@
 
 bl_info = {
     "name": "DynamicSolidify",
-    "description": "check the edges",
+    "description": "",
     "author": "Yuuzen401",
     "version": (0, 0, 1),
     "blender": (2, 80, 0),
