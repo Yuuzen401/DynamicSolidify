@@ -44,3 +44,11 @@ def distance_3d(x1, y1, z1, x2, y2, z2):
     :return Float 距離
     """
     return math.sqrt((x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)
+
+def floor_helper(value, n):
+    """独自の切り捨て関数を定義
+    :param Float 数値
+    :param Int n 切り捨てしたい桁
+    """
+    return math.floor(value * 10 ** n) / (10 ** n)
+    
