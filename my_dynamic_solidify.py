@@ -13,6 +13,7 @@
 
 import bpy
 from .helper import *
+from .prop_detail import DynamicSolidifyModifiers
 
 class DynamicSolidifyList():
 
@@ -71,13 +72,13 @@ class DynamicSolidifyList():
     def getTargetObj(self, index) :
         return bpy.context.scene.dynamic_solidify_collection[index].dsc_target_obj if index > -1 else None
 
-    @classmethod
-    def setTargetObjMod(self, index, mod_name) :
-        bpy.context.scene.dynamic_solidify_collection[index].dsc_target_obj_mod = mod_name
+    # @classmethod
+    # def setTargetObjMod(self, index, mod_name) :
+    #     bpy.context.scene.dynamic_solidify_collection[index].dsc_target_obj_mod = mod_name
 
-    @classmethod
-    def getTargetObjMod(self, index) :
-        return bpy.context.scene.dynamic_solidify_collection[index].dsc_target_obj_mod
+    # @classmethod
+    # def getTargetObjMod(self, index) :
+    #     return bpy.context.scene.dynamic_solidify_collection[index].dsc_target_obj_mod
 
     @classmethod
     def setThickness(self, index, thickness) :
@@ -85,7 +86,9 @@ class DynamicSolidifyList():
 
     @classmethod
     def getThickness(self, index) :
-        return bpy.context.scene.dynamic_solidify_collection[index].dsc_thickness if index > -1 else None
+        # return bpy.context.scene.dynamic_solidify_collection[index].dsc_thickness if index > -1 else None
+        modifiers, modifiers_select_index = DynamicSolidifyModifiers.getNoContextModifiers(index)
+        return None if modifiers is None else modifiers[modifiers_select_index].modifier_thickness
 
     @classmethod
     def setViewDistance(self, index, distance) :
@@ -122,11 +125,14 @@ class DynamicSolidifyList():
         obj = self.getTargetObj(index)
         if obj is None:
             return None
-        mod_index = int(self.getTargetObjMod(index))
-        for i, mod in enumerate(obj.modifiers):
-            if i == mod_index:
-                return mod
-        return None
+        modifiers, modifiers_select_index = DynamicSolidifyModifiers.getNoContextModifiers(index)
+        modifier_name = modifiers[modifiers_select_index].modifier_name
+        return obj.modifiers.get(modifier_name)
+        # mod_index = int(self.getTargetObjMod(index))
+        # for i, mod in enumerate(obj.modifiers):
+        #     if i == mod_index:
+        #         return mod
+        # return None
 
 class DynamicSolidify:
 
@@ -168,11 +174,15 @@ class DynamicSolidify:
             distance_to_thickness = thickness * (distance * DynamicSolidifyList.getDistanceMultiply(self.index))
             max_thickness = DynamicSolidifyList.getThicknessMax(self.index)
 
+            print(distance_to_thickness)
+
             # 上限値の確認をする
-            distance_to_thickness = max_thickness if abs(max_thickness) < abs(distance_to_thickness) else distance_to_thickness
+            if abs(max_thickness) < abs(distance_to_thickness) :
+                distance_to_thickness = max_thickness
 
             # 下限値の確認をする
-            distance_to_thickness = DynamicSolidifyConst.THICKNESS_MIN if DynamicSolidifyConst.THICKNESS_MIN > abs(distance_to_thickness) else distance_to_thickness
+            if DynamicSolidifyConst.THICKNESS_MIN > abs(distance_to_thickness) :
+                distance_to_thickness = DynamicSolidifyConst.THICKNESS_MIN
 
             # モディファイアの厚さを設定する
             mod.thickness = round(distance_to_thickness, 2)
