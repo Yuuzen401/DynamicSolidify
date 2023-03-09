@@ -15,7 +15,7 @@ bl_info = {
     "name": "DynamicSolidify",
     "description": "",
     "author": "Yuuzen401",
-    "version": (0, 0, 4),
+    "version": (0, 0, 5),
     "blender": (2, 80, 0),
     "location":  "View3D > Sidebar > DynamicSolidify",
     "warning": "",
@@ -36,66 +36,26 @@ from .prop_detail import DynamicSolidifyModifiers
 # Updater ops import, all setup in this file.
 from . import addon_updater_ops
     
-# def update_target_obj(scene, context):
-#     active_index = DynamicSolidifyList.getActiveIndex()
-#     obj = DynamicSolidifyList.getTargetObj(active_index)
-#     item_name = DynamicSolidifyConst.ITEM_NAME_INIT if obj is None else obj.name
-#     DynamicSolidifyList.setItemName(active_index, item_name)
-
-#     items = get_target_obj_modifiers_type_solidify(scene, context)
-
-#     # 既にソリッドモディファイアが存在する場合は先頭のソリッドモディファイアを設定する
-#     if len(items) > 0 :
-#         DynamicSolidifyList.setTargetObjMod(active_index, items[1][0])
-#         update_target_obj_mod(scene, context)
-#     else :
-#         DynamicSolidifyList.setTargetObjMod(active_index, items[0][0])
-
-    # active_item = DynamicSolidifyList.getActiveItem()
-    # obj = DynamicSolidifyList.getTargetObj(active_index)
-    # for modifier in obj.modifiers :
-    #     if modifier.type == 'SOLIDIFY':
-    #         index = len(active_item.modifiers)
-    #         new_item = active_item.modifiers.add()
-    #         new_item.modifier_name = modifier.name    
-
-# def update_target_obj_mod(scene, context):
-#     active_index = DynamicSolidifyList.getActiveIndex()
-#     mod = DynamicSolidifyList.getSolidifyMod(active_index)
-#     if mod is None :
-#        DynamicSolidifyList.setThickness(active_index, 0)
-#        return
-#     DynamicSolidifyList.setThickness(active_index, mod.thickness)
-    
-# def get_target_obj_modifiers_type_solidify(scene, context):
-#     # items = [(DynamicSolidifyConst.OBJ_MOD_EMPTY, "", "", "", 0)]
-#     items = []
-#     active_index = DynamicSolidifyList.getActiveIndex()
-#     obj = DynamicSolidifyList.getTargetObj(active_index)
-#     if obj is not None:
-#         for i, modifier in enumerate(obj.modifiers):
-#             if modifier.type == 'SOLIDIFY':
-#                 items.append((str(i), modifier.name, "", "", i + 1))
-#     return items
+def update_target_obj(scene, context):
+    active_index = DynamicSolidifyList.getActiveIndex()
+    obj = DynamicSolidifyList.getTargetObj(active_index)
+    item_name = DynamicSolidifyConst.ITEM_NAME_INIT if obj is None else obj.name
+    DynamicSolidifyList.setItemName(active_index, item_name)
 
 class DynamicSolidifyPropertyGroup(PropertyGroup, DynamicSolidifyList):
     pass
 
 class DynamicSolidifyTargetListPropertyGroup(PropertyGroup, DynamicSolidifyList):
 
-    # enum_method = [
-    #     (DynamicSolidifyConst.ENUM_METHOD_THIN_FOR_SHORT, "thin for short", ""),
-    #     (DynamicSolidifyConst.ENUM_METHOD_THIN_FOR_LONG, "thin for long", ""),
-    # ]
-
     dsc_item_name : StringProperty(default = DynamicSolidifyConst.ITEM_NAME_INIT, name = "item name")
-    dsc_thickness : FloatProperty(name = "Thickness")#, update = update_solidify_modifier)
-    dsc_target_obj : PointerProperty(name = "target", type = bpy.types.Object, poll = lambda self, obj: obj.type == 'MESH')#, update = update_target_obj)
-    #dsc_target_obj_mod: EnumProperty(items = get_target_obj_modifiers_type_solidify, name = "Modifier Type Solidfy")#, update = update_target_obj_mod)
-    dsc_distance_multiply : FloatProperty(name = "", default = 0.1, min = 0.01, max = 10, precision = 2)
-    dsc_thickness_multiply_max : FloatProperty(name = "", default = 3, min = 1, max = 1000, precision = 2)
+    dsc_thickness : FloatProperty(name = "Thickness")
+    dsc_target_obj : PointerProperty(name = "target", type = bpy.types.Object, poll = lambda self, obj: obj.type == 'MESH', update = update_target_obj)
+    dsc_distance_multiply : FloatProperty(name = "", default = 0.1, min = 0.01, max = 1, precision = 2)
+    dsc_thickness_multiply_max : FloatProperty(name = "", default = 1.5, min = 1, max = 1000, precision = 2)
+    dsc_thickness_multiply_min : FloatProperty(name = "", default = 0.1, min = 0, max = 1, precision = 2)
+    dsc_thickness : FloatProperty(name = "", default = 3, min = 1, max = 1000, precision = 2)
+    dsc_thickness_min_if_distance : FloatProperty(name = "Thickness Min IF Distance", default = 5, min = 0, max = 100)
     dsc_view_distance : FloatProperty(name = "distance", precision = 5, default = DynamicSolidifyConst.VIEW_DISTANCE_INIT)
-    # dsc_method : EnumProperty(items = enum_method, name = "Method", default = DynamicSolidifyConst.ENUM_METHOD_THIN_FOR_SHORT)
     index: IntProperty(name = "dynamic_solidify_index", default = -1)
 
 class DynamicSolidifyOperator(Operator, DynamicSolidifyList):
@@ -107,11 +67,11 @@ class DynamicSolidifyOperator(Operator, DynamicSolidifyList):
     # Listから押下したOperatorを識別するためパラメータ
     index: bpy.props.IntProperty(name = "dynamic_solidify_index", default = -1)
 
-    def execute(self, context):
+    def execute(self, context) :
         dynamic_solidify = DynamicSolidifyList.getInstance(self.index)
         dynamic_solidify.execute()
 
-    def invoke(self, context, event):
+    def invoke(self, context, event) :
         if context.area.type == 'VIEW_3D':
             self.execute(context)
             return {'FINISHED'}
@@ -126,7 +86,7 @@ class DynamicSolidifyTargetListAddOperator(Operator, DynamicSolidifyList):
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
+    def execute(self, context) :
         new_item = context.scene.dynamic_solidify_collection.add()
         new_item.dsc_item_name = DynamicSolidifyConst.ITEM_NAME_INIT
         new_item.index = len(context.scene.dynamic_solidify_collection) - 1
@@ -143,10 +103,10 @@ class DynamicSolidifyTargetListRemoveOperator(Operator, DynamicSolidifyList):
     bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
-    def poll(cls, context):
+    def poll(cls, context) :
         return context.scene.dynamic_solidify_collection
 
-    def execute(self, context):
+    def execute(self, context) :
         collection = context.scene.dynamic_solidify_collection
         index = context.scene.dynamic_solidify_collection_active_index
         collection.remove(index)
@@ -163,14 +123,14 @@ class DynamicSolidifyGetModListOperator(Operator, DynamicSolidifyList):
     bl_description = ""
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
+    def execute(self, context) :
         index = DynamicSolidifyList.getActiveIndex()
         obj = DynamicSolidifyList.getTargetObj(index)
         DynamicSolidifyModifiers.resetModifiers(context.scene, index)
         item_modifiers , _ = DynamicSolidifyModifiers.getModifiers(context.scene, index)
         if obj is not None:
             for modifier in obj.modifiers:
-                if modifier.type == 'SOLIDIFY':
+                if modifier.type == 'SOLIDIFY' and modifier.show_viewport :
                     new_item = item_modifiers.add()
                     new_item.modifier_name = modifier.name
                     new_item.modifier_thickness = modifier.thickness
@@ -180,7 +140,7 @@ class DynamicSolidifyGetModListOperator(Operator, DynamicSolidifyList):
 class DynamicSolidify_UL_TargetListLayout(UIList, DynamicSolidifyList):
     """動的ソリッド対象リストUI
     """
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index) :
         dynamic_solidify = DynamicSolidifyList.getInstance(index)
 
         row = layout.row(align = True)
@@ -197,13 +157,17 @@ class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList):
     bl_category = "DynamicSolidify"
 
     def draw(self, context):
+        index = DynamicSolidifyList.getActiveIndex()
+        item = DynamicSolidifyList.getActiveItem()
         layout = self.layout
         layout.separator()
         row = layout.row()
-        row = row.row(align = True)
-        row.operator(DynamicSolidifyTargetListAddOperator.bl_idname, icon = "ADD")
-        row.operator(DynamicSolidifyTargetListRemoveOperator.bl_idname, icon = "REMOVE")
-        row = row.column()
+        col = row.column()
+        col.operator(DynamicSolidifyTargetListAddOperator.bl_idname, icon = "ADD")
+        if DynamicSolidifyList.isItemMax() :
+            col.enabled = False
+        col = row.column()
+        col.operator(DynamicSolidifyTargetListRemoveOperator.bl_idname, icon = "REMOVE")
         row = layout.row()
         len_item = len(context.scene.dynamic_solidify_collection)
         template_list_rows = 5 if 5 > len_item else len_item
@@ -211,10 +175,8 @@ class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList):
             "DynamicSolidify_UL_TargetListLayout", "", context.scene, "dynamic_solidify_collection", context.scene, "dynamic_solidify_collection_active_index", rows = template_list_rows)
 
         # -----------------------------------------------------------
-        if DynamicSolidifyList.existActiveIndex() == False:
+        if DynamicSolidifyList.existActiveIndex() == False :
             return
-        index = DynamicSolidifyList.getActiveIndex()
-        item = DynamicSolidifyList.getActiveItem()
 
         row = layout.row()
         row.prop(item, "dsc_target_obj", text = "")
@@ -222,46 +184,32 @@ class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList):
         # オブジェクトが設定済である場合に以下のレイアウトを設定する
         if item.dsc_target_obj is not None:
             row = layout.row()
-            # row.label(text = "Modifier Solidify Index")
-            # row = layout.row()
-            row.operator(DynamicSolidifyGetModListOperator.bl_idname, text = "Get Solidify Modifier List")
-
-            # sp = row.split(align = True, factor = 0.3)
-            # sp.prop(item, "dsc_target_obj_mod" , text = "")
-
-            # モディファイアが設定済である場合、モディファイアの名称を表示する
-            # if item.dsc_target_obj_mod:
-                # dsc_target_obj_mod = int(item.dsc_target_obj_mod)
-                # if int(DynamicSolidifyConst.OBJ_MOD_EMPTY) == dsc_target_obj_mod:
-                #     text = "EMPTY"
-                # else:
-                #     text = item.dsc_target_obj.modifiers[dsc_target_obj_mod].name
-                # sp.label(text = text, icon = "MOD_SOLIDIFY")
+            row.operator(DynamicSolidifyGetModListOperator.bl_idname, text = "Get Only View Solidify", icon = "MOD_SOLIDIFY")
             
             row = layout.row()
             DynamicSolidifyModifiers.get_UL_Modifiers(row, context.scene, index)
 
-            mod = DynamicSolidifyList.getSolidifyMod(index)
+            mod = DynamicSolidifyList.getDynamicSolidifyMod(index)
             if mod is not None :
                 # 厚さに関する設定を行う
                 row = layout.row()
-                # row.prop(item, "dsc_method")
-                # row = box.row()
-                row.label(text = "Modifier Thickness : " + str(floor_helper(DynamicSolidifyList.getThickness(index), 4)))
+                row.prop(item, "dsc_distance_multiply", text = "Strength")
                 row = layout.row()
-                row.label(text = "Distance Multiply")
+                row.prop(item, "dsc_thickness_multiply_max", text = "Max Scale")
                 row = layout.row()
-                row.prop(item, "dsc_distance_multiply", text = "Distance *")
+                row.prop(item, "dsc_thickness_multiply_min", text = "Min Scale")
                 row = layout.row()
-                row.label(text = "Thickness (Value / Max)" + str(floor_helper(mod.thickness, 2)) + "/" + str(DynamicSolidifyList.getThicknessMax(index)))
-                row = layout.row()
-                row.prop(item, "dsc_thickness_multiply_max", text = "Thickness *")
+                row.prop(item, "dsc_thickness_min_if_distance", text = "Size Min IF Distance")
                 if DynamicSolidifyConst.VIEW_DISTANCE_INIT == DynamicSolidifyList.getViewDistance(index) :
                     text = "Distance : None"
                 else :
                     text = "Distance : " + str(DynamicSolidifyList.getViewDistance(index))
                 row = layout.row()
                 row.label(text = text)
+                row = layout.row()
+                row.label(text = "Size : Min < Value < Max" )
+                row = layout.row()
+                row.label(text = str(DynamicSolidifyList.getThicknessMin(index)) + " < "+ str(round(mod.thickness, 2)) + " < " + str(DynamicSolidifyList.getThicknessMax(index)))
 
         # -----------------------------------------------------------
 

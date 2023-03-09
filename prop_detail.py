@@ -14,6 +14,7 @@
 import bpy
 from bpy.types import PropertyGroup, UIList
 from bpy.props import StringProperty, IntProperty, CollectionProperty, FloatProperty
+from .helper import *
 
 class DynamicSolidifyModifiers():
 
@@ -98,7 +99,7 @@ class DynamicSolidifyModifiers():
 
     @classmethod
     def resetModifiers(self, scene, index) :
-        modifiers , modifiers_select_index = self.getModifiers(scene, index)
+        modifiers , _ = self.getModifiers(scene, index)
         if modifiers is None :
             return
         for modifier in modifiers:
@@ -164,4 +165,3 @@ class DynamicSolidify_UL_Modifiers(UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row(align = True)
         row.prop(item, "modifier_name", text = "", emboss = False, icon = 'OBJECT_DATAMODE')
-        row.label(text = str(item.modifier_thickness))
