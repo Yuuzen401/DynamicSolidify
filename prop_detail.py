@@ -94,6 +94,32 @@ class DynamicSolidifyModifiers():
             scene.dynamic_solidify_modifiers_select_index_9 = modifiers_select_index
 
     @classmethod
+    def getModifiersSelectIndex(self, index) :
+        scene = bpy.context.scene
+        if index > 10 :
+            return -1
+        elif index == 0 :
+            return scene.dynamic_solidify_modifiers_select_index_0
+        elif index == 1 :
+            return scene.dynamic_solidify_modifiers_select_index_1
+        elif index == 2 :
+            return scene.dynamic_solidify_modifiers_select_index_2
+        elif index == 3 :
+            return scene.dynamic_solidify_modifiers_select_index_3
+        elif index == 4 :
+            return scene.dynamic_solidify_modifiers_select_index_4
+        elif index == 5 :
+            return scene.dynamic_solidify_modifiers_select_index_5
+        elif index == 6 :
+            return scene.dynamic_solidify_modifiers_select_index_6
+        elif index == 7 :
+            return scene.dynamic_solidify_modifiers_select_index_7
+        elif index == 8 :
+            return scene.dynamic_solidify_modifiers_select_index_8
+        elif index == 9 :
+            return scene.dynamic_solidify_modifiers_select_index_9
+
+    @classmethod
     def getNoContextModifiers(self, index) :
         return self.getModifiers(bpy.context.scene, index)
 
@@ -103,8 +129,8 @@ class DynamicSolidifyModifiers():
         if modifiers is None :
             return
         for modifier in modifiers:
-            index = len(modifiers) - 1
-            modifiers.remove(index)
+            mod_index = len(modifiers) - 1
+            modifiers.remove(mod_index)
         self.setModifiersSelectIndex(scene, index, -1)
 
     @classmethod

@@ -37,18 +37,18 @@ class DynamicSolidifyList():
         return instance
 
     @classmethod
-    def removeInstance(self) :
-        collection = bpy.context.scene.dynamic_solidify_collection
-        # listの中にあるindexがcollectionに存在しない場合は削除する
-        for key in list(self.instance_list) :
-            is_pop = True
-            for item_i, item in enumerate(collection) :
-                if key == item_i :
-                    is_pop = False
-                    break
-            if is_pop :
-                self.instance_list[key].removeHandler()
-                self.instance_list.pop(key)
+    def removeInstance(self, scene, index) :
+        # 作業用モディファイアを作成する前の状態に戻す
+        self.rollbackOriginalSolidifyMod(index)
+
+        # コレクションに設定したモディファイアをリセットする
+        DynamicSolidifyModifiers.resetModifiers(scene, index)
+
+        # ハンドルを削除する
+        self.instance_list[index].removeHandler()
+
+        # 最後にリストから削除する
+        self.instance_list.pop(index)
 
     @classmethod
     def getActiveIndex(self) :
@@ -69,12 +69,21 @@ class DynamicSolidifyList():
         bpy.context.scene.dynamic_solidify_collection[index].dsc_item_name = item_name
 
     @classmethod
+    def setTargetObj(self, index, obj) :
+        bpy.context.scene.dynamic_solidify_collection[index].dsc_target_obj = obj
+
+    @classmethod
     def getTargetObj(self, index) :
         return bpy.context.scene.dynamic_solidify_collection[index].dsc_target_obj if index > -1 else None
 
     @classmethod
-    def setThickness(self, index, thickness) :
-        bpy.context.scene.dynamic_solidify_collection[index].dsc_thickness = thickness
+    def existTargetObj(self, index):
+        obj = self.getTargetObj(index)
+        for i, item in enumerate(bpy.context.scene.dynamic_solidify_collection) :
+            # 一致するオブジェクトのみ。自分自身である場合は除外する。
+            if item.dsc_target_obj == obj and not (i == index):
+                return True
+        return False
 
     @classmethod
     def getThickness(self, index) :
@@ -94,37 +103,50 @@ class DynamicSolidifyList():
         return bpy.context.scene.dynamic_solidify_collection[index].dsc_distance_multiply if index > -1 else 0
 
     @classmethod
-    def getThicknessMultiplyMax(self, index) :
-        return bpy.context.scene.dynamic_solidify_collection[index].dsc_thickness_multiply_max if index > -1 else 0
-
-    @classmethod
-    def getThicknessMultiplyMin(self, index) :
-        return bpy.context.scene.dynamic_solidify_collection[index].dsc_thickness_multiply_min if index > -1 else 0
-
-    @classmethod
     def getThicknessMinIfDistance(self, index) :
         return bpy.context.scene.dynamic_solidify_collection[index].dsc_thickness_min_if_distance if index > -1 else 0
 
     @classmethod
+    def setThicknessMax(self, index, thickness) :
+        bpy.context.scene.dynamic_solidify_collection[index].dsc_thickness_max = thickness
+
+    @classmethod
+    def setThicknessMin(self, index, thickness) :
+        bpy.context.scene.dynamic_solidify_collection[index].dsc_thickness_min = thickness
+
+    @classmethod
     def getThicknessMax(self, index) :
-        return round(self.getThickness(index) * self.getThicknessMultiplyMax(index), 2)
+        return bpy.context.scene.dynamic_solidify_collection[index].dsc_thickness_max if index > -1 else 0
 
     @classmethod
     def getThicknessMin(self, index) :
-        return round(self.getThickness(index) * self.getThicknessMultiplyMin(index), 2)
+        return bpy.context.scene.dynamic_solidify_collection[index].dsc_thickness_min if index > -1 else 0
 
     @classmethod
     def isItemMax(self) :
         return len(bpy.context.scene.dynamic_solidify_collection) >= 10
 
     @classmethod
-    def getSolidifyMod(self, index):
+    def isItemNone(self) :
+        return len(bpy.context.scene.dynamic_solidify_collection) == 0
+
+    @classmethod
+    def getOriginalSolidifyMod(self, index):
         obj = self.getTargetObj(index)
         if obj is None:
             return None
         modifiers, modifiers_select_index = DynamicSolidifyModifiers.getNoContextModifiers(index)
         modifier_name = modifiers[modifiers_select_index].modifier_name
         return obj.modifiers.get(modifier_name)
+
+    @classmethod
+    def rollbackOriginalSolidifyMod(self, index) :
+        """ソリッドモディファイアを複製する前の状態に戻す
+        """
+        mod = DynamicSolidifyList.getOriginalSolidifyMod(index)
+        if mod is not None :
+            mod.show_viewport = True
+            self.removeDynamicSolidifyMod(index)
 
     @classmethod
     def getDynamicSolidifyMod(self, index):
@@ -140,8 +162,10 @@ class DynamicSolidifyList():
 
     @classmethod
     def setUpObj(self, index):
+        # セットアップする前に同じ名前のセットアップしたモディファイアを削除する
+        self.removeDynamicSolidifyMod(index)
         obj = self.getTargetObj(index)
-        mod = self.getSolidifyMod(index)
+        mod = self.getOriginalSolidifyMod(index)
         new_mod = obj.modifiers.new(DynamicSolidifyConst.MODIFIER_NAME, mod.type)
         for prop in dir(mod):
             if prop.startswith((
@@ -234,20 +258,25 @@ class DynamicSolidify:
         if self.existIndex():
             # enable to disable
             if self.isEnable():
-                DynamicSolidifyList.getSolidifyMod(self.index).show_viewport = True
-                DynamicSolidifyList.removeDynamicSolidifyMod(self.index)
+                DynamicSolidifyList.rollbackOriginalSolidifyMod(self.index)
                 self.removeHandler()
                 DynamicSolidifyList.setViewDistance(self.index, DynamicSolidifyConst.VIEW_DISTANCE_INIT)
             # disable to enable
             else:
-                DynamicSolidifyList.getSolidifyMod(self.index).show_viewport = False
-                DynamicSolidifyList.removeDynamicSolidifyMod(self.index)
+                DynamicSolidifyList.getOriginalSolidifyMod(self.index).show_viewport = False
                 DynamicSolidifyList.setUpObj(self.index)
+
+                # 有効化したときに厚さの最大値が0である場合は元の厚さで設定する
+                thickness_max = DynamicSolidifyList.getThicknessMax(self.index)
+                if thickness_max == 0 :
+                    mod = DynamicSolidifyList.getOriginalSolidifyMod(self.index)
+                    DynamicSolidifyList.setThicknessMax(self.index, abs(mod.thickness))
+
                 self.addHandler()
 
 class DynamicSolidifyConst:
 
-    ITEM_NAME_INIT = "empty object"
+    ITEM_NAME_INIT = ""
     OBJ_MOD_EMPTY = "9999"
     VIEW_DISTANCE_INIT = -1
     THICKNESS_MIN = 0
