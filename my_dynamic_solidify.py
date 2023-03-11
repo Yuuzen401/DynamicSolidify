@@ -170,10 +170,10 @@ class DynamicSolidifyList():
         return 0 > mod.thickness
 
     @classmethod
-    def isOriginalThicknessSubToSub(self, value) :
+    def isOriginalThicknessSubToSub(self, index, value) :
         """元の厚さがマイナス値である場合はマイナスに変換する
         """
-        return value * -1 if self.isOriginalThicknessSub else value
+        return value * -1 if self.isOriginalThicknessSub(index) else value
 
     @classmethod
     def rollbackOriginalSolidifyMod(self, index) :
@@ -317,12 +317,12 @@ class DynamicSolidify:
             max_thickness = DynamicSolidifyList.getThicknessMax(self.index)
             min_thickness = DynamicSolidifyList.getThicknessMin(self.index)
             if max_thickness < distance_to_thickness :
-                distance_to_thickness = DynamicSolidifyList.isOriginalThicknessSubToSub(max_thickness)
+                distance_to_thickness = DynamicSolidifyList.isOriginalThicknessSubToSub(self.index, max_thickness)
 
             elif min_thickness > distance_to_thickness :
-                distance_to_thickness = DynamicSolidifyList.isOriginalThicknessSubToSub(min_thickness)
+                distance_to_thickness = DynamicSolidifyList.isOriginalThicknessSubToSub(self.index, min_thickness)
             else :
-                distance_to_thickness = DynamicSolidifyList.isOriginalThicknessSubToSub(distance_to_thickness)
+                distance_to_thickness = DynamicSolidifyList.isOriginalThicknessSubToSub(self.index, distance_to_thickness)
 
             # モディファイアの厚さを設定する
             mod.thickness = round(distance_to_thickness, 4)

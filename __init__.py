@@ -15,7 +15,7 @@ bl_info = {
     "name": "DynamicSolidify",
     "description": "",
     "author": "Yuuzen401",
-    "version": (0, 0, 10),
+    "version": (0, 0, 11),
     "blender": (2, 80, 0),
     "location":  "View3D > Sidebar > DynamicSolidify",
     "warning": "",
