@@ -258,7 +258,7 @@ class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList) :
         # オブジェクトが設定済である場合に以下のレイアウトを設定する
         if item.dsc_target_obj is not None:
             row = layout.row()
-            row.operator(DynamicSolidifyGetModListOperator.bl_idname, text = "Get Only View Solidify", icon = "MOD_SOLIDIFY")
+            row.operator(DynamicSolidifyGetModListOperator.bl_idname, text = "Get Modifiers", icon = "MOD_SOLIDIFY")
             dynamic_solidify = DynamicSolidifyList.getInstance(index)
             if dynamic_solidify is not None :
                 if dynamic_solidify.isEnable() :
