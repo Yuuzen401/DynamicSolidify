@@ -15,7 +15,7 @@ bl_info = {
     "name": "DynamicSolidify",
     "description": "",
     "author": "Yuuzen401",
-    "version": (0, 0, 7),
+    "version": (0, 0, 8),
     "blender": (2, 80, 0),
     "location":  "View3D > Sidebar > DynamicSolidify",
     "warning": "",
@@ -52,10 +52,19 @@ def update_target_obj(self, context):
     item_name = DynamicSolidifyConst.ITEM_NAME_INIT if obj is None else obj.name
     DynamicSolidifyList.setItemName(index, item_name)
 
-class DynamicSolidifyPropertyGroup(PropertyGroup, DynamicSolidifyList):
-    pass
+def get_target_area(self, context) :
+    spaces = []
+    for area in bpy.context.screen.areas:
+        for space in area.spaces:
+            if space.type == 'VIEW_3D':
+                index = len(spaces)
+                spaces.append((str(index), str(index), ""))
+    return spaces
 
-class DynamicSolidifyTargetListPropertyGroup(PropertyGroup, DynamicSolidifyList):
+class DynamicSolidifyPropertyGroup(PropertyGroup, DynamicSolidifyList):
+    target_area : EnumProperty(items = get_target_area)
+
+class DynamicSolidifyTargetListPropertyGroup(PropertyGroup, DynamicSolidifyList) :
 
     dsc_item_name : StringProperty(default = DynamicSolidifyConst.ITEM_NAME_INIT, name = "item name")
     dsc_target_obj : PointerProperty(name = "target", type = bpy.types.Object, poll = lambda self, obj: obj.type == "MESH" or obj.type == "CURVE", update = update_target_obj)
@@ -66,11 +75,12 @@ class DynamicSolidifyTargetListPropertyGroup(PropertyGroup, DynamicSolidifyList)
     dsc_view_distance : FloatProperty(name = "distance", precision = 5, default = DynamicSolidifyConst.VIEW_DISTANCE_INIT)
     index: IntProperty(name = "dynamic_solidify_index", default = DynamicSolidifyConst.NO_INDEX)
 
-class DynamicSolidifyOperator(Operator, DynamicSolidifyList):
+class DynamicSolidifyOperator(Operator, DynamicSolidifyList) :
     """動的ソリッド実行
     """
     bl_idname = "dynamic_solidify.operator"
     bl_label = "Dynamic Solidify"
+    bl_description = ""
 
     # Listから押下したOperatorを識別するためパラメータ
     index: bpy.props.IntProperty(default = DynamicSolidifyConst.NO_INDEX)
@@ -86,13 +96,12 @@ class DynamicSolidifyOperator(Operator, DynamicSolidifyList):
         else:
             return {'CANCELLED'}
 
-class DynamicSolidifyTargetListAddOperator(Operator, DynamicSolidifyList):
+class DynamicSolidifyTargetListAddOperator(Operator, DynamicSolidifyList) :
     """動的ソリッド対象リスト追加
     """
     bl_idname = "dynamic_solidify_collection_add.operator"
     bl_label = ""
     bl_description = ""
-    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context) :
         DynamicSolidifyList.removeInstanceAll(context.scene)
@@ -103,13 +112,12 @@ class DynamicSolidifyTargetListAddOperator(Operator, DynamicSolidifyList):
         context.scene.dynamic_solidify_collection_active_index = 0
         return {'FINISHED'}
 
-class DynamicSolidifyTargetListRemoveOperator(Operator, DynamicSolidifyList):
+class DynamicSolidifyTargetListRemoveOperator(Operator, DynamicSolidifyList) :
     """動的ソリッド対象リスト削除
     """
     bl_idname = "dynamic_solidify_collection_remove.operator"
     bl_label = ""
     bl_description = ""
-    bl_options = {'REGISTER', 'UNDO'}
 
     # Listから押下したOperatorを識別するためパラメータ
     index: bpy.props.IntProperty(default = DynamicSolidifyConst.NO_INDEX)
@@ -128,13 +136,12 @@ class DynamicSolidifyTargetListRemoveOperator(Operator, DynamicSolidifyList):
         # context.scene.dynamic_solidify_collection_active_index = DynamicSolidifyConst.NO_INDEX
         return {'FINISHED'}
 
-class DynamicSolidifyGetModListOperator(Operator, DynamicSolidifyList):
+class DynamicSolidifyGetModListOperator(Operator, DynamicSolidifyList) :
     """オブジェクトからモディファイアを取得する
     """
     bl_idname = "dynamic_solidify_get_mod_list.operator"
     bl_label = ""
     bl_description = ""
-    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context) :
         index = DynamicSolidifyList.getActiveIndex()
@@ -160,7 +167,6 @@ class DynamicSolidifyResetOperator(Operator, DynamicSolidifyList):
     bl_idname = "dynamic_solidify_reset.operator"
     bl_label = ""
     bl_description = ""
-    bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context) :
         DynamicSolidifyList.removeInstanceAll(context.scene)
@@ -171,7 +177,7 @@ class DynamicSolidifyResetOperator(Operator, DynamicSolidifyList):
 
         return {'FINISHED'}
 
-class DynamicSolidify_UL_TargetListLayout(UIList, DynamicSolidifyList):
+class DynamicSolidify_UL_TargetListLayout(UIList, DynamicSolidifyList) :
     """動的ソリッド対象リストUI
     """
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index) :
@@ -196,7 +202,7 @@ class DynamicSolidify_UL_TargetListLayout(UIList, DynamicSolidifyList):
         op = col.operator(DynamicSolidifyTargetListRemoveOperator.bl_idname, icon = "REMOVE")
         op.index = index
 
-class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList):
+class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList) :
     bl_label = "DynamicSolidify"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
@@ -217,6 +223,11 @@ class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList):
         row.operator(DynamicSolidifyResetOperator.bl_idname, text = "Reset")
         if DynamicSolidifyList.isItemNone() == True :
             row.enabled = False
+
+        # エリア
+        sp = layout.split(align = True, factor = 0.8)
+        sp.label(text = "Select Aria Index")
+        sp.prop(context.scene.dynamic_solidify_prop, "target_area", text = "")
 
         # オブジェクト一覧
         row = layout.row()
@@ -273,8 +284,6 @@ class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList):
                     text = "Distance : " + str(DynamicSolidifyList.getViewDistance(index))
                 row = layout.row()
                 row.label(text = text)
-
-        # -----------------------------------------------------------
 
 classes = (
     DynamicSolidifyPropertyGroup,

@@ -188,7 +188,10 @@ class DynamicSolidifyList():
     def getDynamicSolidifyMod(self, index) :
         if self.emptyIndex(index) : return None
         obj = self.getTargetObj(index)
-        return obj.modifiers.get(DynamicSolidifyConst.MODIFIER_NAME)
+        if obj is None :
+            return None
+        else :
+            return obj.modifiers.get(DynamicSolidifyConst.MODIFIER_NAME)
 
     @classmethod
     def removeDynamicSolidifyMod(self, index) :
@@ -267,11 +270,31 @@ class DynamicSolidify:
             self.setHandler(None)
 
     def draw(self):
+        obj = DynamicSolidifyList.getTargetObj(self.index)
         mod = DynamicSolidifyList.getDynamicSolidifyMod(self.index)
-        if mod is not None:
-            space_view_3d = get_space_view_3d()
-            v1, _, _, = bpy.context.active_object.matrix_world.decompose()
-            v2, _, _, = space_view_3d.region_3d.view_matrix.decompose()
+
+        # 距離を算出するエリアを検索する
+        count = 0
+        use_space = None
+        for area in bpy.context.screen.areas :
+            for space in area.spaces:
+                if space.type == 'VIEW_3D':
+                    if str(count) == bpy.context.scene.dynamic_solidify_prop.target_area :
+                        use_space = space
+                        break
+                    count = count + 1
+
+            # スペースが見つかった時点で終了する
+            if use_space is not None :
+                break
+
+        # 必要なものが全て取得できている場合に処理を実行する
+        if obj is not None \
+            and mod is not None \
+            and use_space is not None :
+
+            v1, _, _, = obj.matrix_world.decompose()
+            v2, _, _, = use_space.region_3d.view_matrix.decompose()
             original_thickness = abs(DynamicSolidifyList.getOriginalThickness(self.index))
             distance = abs(distance_3d(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z))
 
@@ -302,7 +325,7 @@ class DynamicSolidify:
                 distance_to_thickness = DynamicSolidifyList.isOriginalThicknessSubToSub(distance_to_thickness)
 
             # モディファイアの厚さを設定する
-            mod.thickness = round(distance_to_thickness, 2)
+            mod.thickness = round(distance_to_thickness, 4)
 
     def execute(self):
         if self.existIndex():
