@@ -6,6 +6,8 @@ DynamicSolidifyはblenderのアドオンです。
 
 ## 機能
 
+![image](https://user-images.githubusercontent.com/124477558/224496802-64013708-0f6f-4fb6-9991-54b625bbd807.png)
+
 * ヘッダー
 
 |ヘッダー項目|説明|
@@ -38,9 +40,6 @@ DynamicSolidifyはblenderのアドオンです。
 |最小|最小幅|
 |最小距離|最小幅になる距離|
 |Distance|オブジェクトと自分自身との距離を数値化して表示する。<br>この数値を元に最小距離を設定する。<br>数値が変わらない場合はヘッダー項目の「Select Area Index」を変更すること。
-
-
-![image](https://user-images.githubusercontent.com/124477558/224496802-64013708-0f6f-4fb6-9991-54b625bbd807.png)
 
 #### 動作
 versionは3.4でのみ確認を行っています。
