@@ -15,6 +15,7 @@ DynamicSolidifyはblenderのアドオンです。
 |Select Area Index|距離の取得をする基準のエリアを指定する必要があるため、<br>動作させても後述のDistanceの数値が変動しない場合はIndexを変更してください。|
 
 <br>
+
 * リスト（10個まで設定可）
 
 |リスト項目|説明|
@@ -25,6 +26,7 @@ DynamicSolidifyはblenderのアドオンです。
 |-|押下した行の設定をクリアする。|
 
 <br>
+
 * パラメータ
 
 |項目|説明|
