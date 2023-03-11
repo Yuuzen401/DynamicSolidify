@@ -15,7 +15,7 @@ bl_info = {
     "name": "DynamicSolidify",
     "description": "",
     "author": "Yuuzen401",
-    "version": (0, 0, 9),
+    "version": (0, 0, 10),
     "blender": (2, 80, 0),
     "location":  "View3D > Sidebar > DynamicSolidify",
     "warning": "",
@@ -151,11 +151,15 @@ class DynamicSolidifyGetModListOperator(Operator, DynamicSolidifyList) :
         set_index = DynamicSolidifyConst.NO_INDEX
         if obj is not None:
             for modifier in obj.modifiers:
-                if modifier.type == 'SOLIDIFY' and modifier.show_viewport :
-                    new_item = item_modifiers.add()
-                    new_item.modifier_name = modifier.name
-                    new_item.modifier_thickness = modifier.thickness
-                    set_index = 0
+                if modifier.type == 'SOLIDIFY' :
+                    # 作業用モディファイアは除外する
+                    if modifier.name == DynamicSolidifyConst.MODIFIER_NAME :
+                        pass
+                    else :
+                        new_item = item_modifiers.add()
+                        new_item.modifier_name = modifier.name
+                        new_item.modifier_thickness = modifier.thickness
+                        set_index = 0
         
         DynamicSolidifyModifiers.setModifiersSelectIndex(context.scene, index, set_index)
 
