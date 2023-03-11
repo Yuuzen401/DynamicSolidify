@@ -326,6 +326,12 @@ class DynamicSolidify:
 
             # モディファイアの厚さを設定する
             mod.thickness = round(distance_to_thickness, 4)
+        
+        else :
+            # 条件を満たさない場合は強制的に解除する
+            DynamicSolidifyList.rollbackOriginalSolidifyMod(self.index)
+            self.removeHandler()
+            DynamicSolidifyList.setViewDistance(self.index, DynamicSolidifyConst.VIEW_DISTANCE_INIT)
 
     def execute(self):
         if self.existIndex():
