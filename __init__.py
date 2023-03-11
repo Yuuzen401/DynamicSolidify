@@ -15,7 +15,7 @@ bl_info = {
     "name": "DynamicSolidify",
     "description": "",
     "author": "Yuuzen401",
-    "version": (0, 0, 8),
+    "version": (0, 0, 9),
     "blender": (2, 80, 0),
     "location":  "View3D > Sidebar > DynamicSolidify",
     "warning": "",
@@ -226,7 +226,7 @@ class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList) :
 
         # エリア
         sp = layout.split(align = True, factor = 0.8)
-        sp.label(text = "Select Aria Index")
+        sp.label(text = "Select Area Index")
         sp.prop(context.scene.dynamic_solidify_prop, "target_area", text = "")
 
         # オブジェクト一覧
