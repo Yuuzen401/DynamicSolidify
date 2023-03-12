@@ -15,7 +15,7 @@ bl_info = {
     "name": "DynamicSolidify",
     "description": "",
     "author": "Yuuzen401",
-    "version": (0, 0, 11),
+    "version": (0, 0, 12),
     "blender": (2, 80, 0),
     "location":  "View3D > Sidebar > DynamicSolidify",
     "warning": "",
@@ -181,7 +181,7 @@ class DynamicSolidifyResetOperator(Operator, DynamicSolidifyList):
 
         return {'FINISHED'}
 
-class DynamicSolidify_UL_TargetListLayout(UIList, DynamicSolidifyList) :
+class VIEW3D_UL_DynamicSolidifyTargetListLayout(UIList, DynamicSolidifyList) :
     """動的ソリッド対象リストUI
     """
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index) :
@@ -206,7 +206,7 @@ class DynamicSolidify_UL_TargetListLayout(UIList, DynamicSolidifyList) :
         op = col.operator(DynamicSolidifyTargetListRemoveOperator.bl_idname, icon = "REMOVE")
         op.index = index
 
-class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList) :
+class VIEW3D_PT_DynamicSolidifyPanel(Panel, DynamicSolidifyList) :
     bl_label = "DynamicSolidify"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
@@ -236,7 +236,7 @@ class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList) :
         # オブジェクト一覧
         row = layout.row()
         row.template_list(
-            "DynamicSolidify_UL_TargetListLayout",
+            "VIEW3D_UL_DynamicSolidifyTargetListLayout",
             "",
             context.scene,
             "dynamic_solidify_collection",
@@ -292,7 +292,7 @@ class DynamicSolidify_PT_Panel(Panel, DynamicSolidifyList) :
 classes = (
     DynamicSolidifyPropertyGroup,
     DynamicSolidifyTargetListPropertyGroup,
-    DynamicSolidify_PT_Panel,
+    VIEW3D_PT_DynamicSolidifyPanel,
     DynamicSolidifyPreferences,
     DynamicSolidifyOperator,
     DynamicSolidifyTargetListAddOperator,
@@ -300,7 +300,7 @@ classes = (
     DynamicSolidifyGetModListOperator,
     DynamicSolidifyResetOperator,
     DynamicSolidifyUpdaterPanel,
-    DynamicSolidify_UL_TargetListLayout,
+    VIEW3D_UL_DynamicSolidifyTargetListLayout,
     )
 
 def register():

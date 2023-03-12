@@ -23,25 +23,25 @@ class DynamicSolidifyModifiers():
         if index > 10 :
             return None
         elif index == 0 :
-            return layout.template_list("DynamicSolidify_UL_Modifiers", "", scene, "dynamic_solidify_modifiers_0", scene, "dynamic_solidify_modifiers_select_index_0")
+            return layout.template_list("VIEW3D_UL_DynamicSolidifyModifiers", "", scene, "dynamic_solidify_modifiers_0", scene, "dynamic_solidify_modifiers_select_index_0")
         elif index == 1 :
-            return layout.template_list("DynamicSolidify_UL_Modifiers", "", scene, "dynamic_solidify_modifiers_1", scene, "dynamic_solidify_modifiers_select_index_1")
+            return layout.template_list("VIEW3D_UL_DynamicSolidifyModifiers", "", scene, "dynamic_solidify_modifiers_1", scene, "dynamic_solidify_modifiers_select_index_1")
         elif index == 2 :
-            return layout.template_list("DynamicSolidify_UL_Modifiers", "", scene, "dynamic_solidify_modifiers_2", scene, "dynamic_solidify_modifiers_select_index_2")
+            return layout.template_list("VIEW3D_UL_DynamicSolidifyModifiers", "", scene, "dynamic_solidify_modifiers_2", scene, "dynamic_solidify_modifiers_select_index_2")
         elif index == 3 :
-            return layout.template_list("DynamicSolidify_UL_Modifiers", "", scene, "dynamic_solidify_modifiers_3", scene, "dynamic_solidify_modifiers_select_index_3")
+            return layout.template_list("VIEW3D_UL_DynamicSolidifyModifiers", "", scene, "dynamic_solidify_modifiers_3", scene, "dynamic_solidify_modifiers_select_index_3")
         elif index == 4 :
-            return layout.template_list("DynamicSolidify_UL_Modifiers", "", scene, "dynamic_solidify_modifiers_4", scene, "dynamic_solidify_modifiers_select_index_4")
+            return layout.template_list("VIEW3D_UL_DynamicSolidifyModifiers", "", scene, "dynamic_solidify_modifiers_4", scene, "dynamic_solidify_modifiers_select_index_4")
         elif index == 5 :
-            return layout.template_list("DynamicSolidify_UL_Modifiers", "", scene, "dynamic_solidify_modifiers_5", scene, "dynamic_solidify_modifiers_select_index_5")
+            return layout.template_list("VIEW3D_UL_DynamicSolidifyModifiers", "", scene, "dynamic_solidify_modifiers_5", scene, "dynamic_solidify_modifiers_select_index_5")
         elif index == 6 :
-            return layout.template_list("DynamicSolidify_UL_Modifiers", "", scene, "dynamic_solidify_modifiers_6", scene, "dynamic_solidify_modifiers_select_index_6")
+            return layout.template_list("VIEW3D_UL_DynamicSolidifyModifiers", "", scene, "dynamic_solidify_modifiers_6", scene, "dynamic_solidify_modifiers_select_index_6")
         elif index == 7 :
-            return layout.template_list("DynamicSolidify_UL_Modifiers", "", scene, "dynamic_solidify_modifiers_7", scene, "dynamic_solidify_modifiers_select_index_7")
+            return layout.template_list("VIEW3D_UL_DynamicSolidifyModifiers", "", scene, "dynamic_solidify_modifiers_7", scene, "dynamic_solidify_modifiers_select_index_7")
         elif index == 8 :
-            return layout.template_list("DynamicSolidify_UL_Modifiers", "", scene, "dynamic_solidify_modifiers_8", scene, "dynamic_solidify_modifiers_select_index_8")
+            return layout.template_list("VIEW3D_UL_DynamicSolidifyModifiers", "", scene, "dynamic_solidify_modifiers_8", scene, "dynamic_solidify_modifiers_select_index_8")
         elif index == 9 :
-            return layout.template_list("DynamicSolidify_UL_Modifiers", "", scene, "dynamic_solidify_modifiers_9", scene, "dynamic_solidify_modifiers_select_index_9")
+            return layout.template_list("VIEW3D_UL_DynamicSolidifyModifiers", "", scene, "dynamic_solidify_modifiers_9", scene, "dynamic_solidify_modifiers_select_index_9")
 
     @classmethod
     def getModifiers(self, scene, index) :
@@ -136,7 +136,7 @@ class DynamicSolidifyModifiers():
     @classmethod
     def register(self):
         bpy.utils.register_class(DynamicSolidifyModifiersPropertyGroup)
-        bpy.utils.register_class(DynamicSolidify_UL_Modifiers)
+        bpy.utils.register_class(VIEW3D_UL_DynamicSolidifyModifiers)
         bpy.types.Scene.dynamic_solidify_modifiers_0 = CollectionProperty(type = DynamicSolidifyModifiersPropertyGroup)
         bpy.types.Scene.dynamic_solidify_modifiers_1 = CollectionProperty(type = DynamicSolidifyModifiersPropertyGroup)
         bpy.types.Scene.dynamic_solidify_modifiers_2 = CollectionProperty(type = DynamicSolidifyModifiersPropertyGroup)
@@ -161,7 +161,7 @@ class DynamicSolidifyModifiers():
     @classmethod
     def unregister(self):
         bpy.utils.unregister_class(DynamicSolidifyModifiersPropertyGroup)
-        bpy.utils.unregister_class(DynamicSolidify_UL_Modifiers)
+        bpy.utils.unregister_class(VIEW3D_UL_DynamicSolidifyModifiers)
         del bpy.types.Scene.dynamic_solidify_modifiers_0
         del bpy.types.Scene.dynamic_solidify_modifiers_1
         del bpy.types.Scene.dynamic_solidify_modifiers_2
@@ -187,7 +187,7 @@ class DynamicSolidifyModifiersPropertyGroup(PropertyGroup):
     modifier_name : StringProperty(name = "Modifier")
     modifier_thickness : FloatProperty(name = "Modifier Thickness")
 
-class DynamicSolidify_UL_Modifiers(UIList):
+class VIEW3D_UL_DynamicSolidifyModifiers(UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         row = layout.row(align = True)
         row.prop(item, "modifier_name", text = "", emboss = False, icon = 'OBJECT_DATAMODE')
